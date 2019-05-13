@@ -8,27 +8,18 @@ import minimax from "../ai/minimax";
 
 import { UPDATE_CANVAS, CHANGE_TURN, TOGGLE_GAME_STATUS, START_GAME, RESET_GAME, END_GAME, UPDATE_ACTIVE_ROW, TOGGLE_COMPUTER_OPPONENT, TOGGLE_ANIMATION_CLASS, CHANGE_ANIMATION_DEPTH } from "../reducers/types";
 import GameReducer from "../reducers/gameReducer"
+import { initialState } from "../reducers/initialState"
 
 
 
 
-const initialState = {
-    canvas: Array(6).fill(Array(7).fill(0)), //Holds copy/instance of canvas
-    activePlayer: 1, //player who has current turn
-    gameOn: false, //game is running
-    gameOver: false,  //game has been finished
-    activeRow: null,  //row that has been hovered ("column" but as the canvas is being stored transposed its actually the row)
-    computerOpponent: false,   //play vs. computer
-    animationClass: false,  //used to trigger animation
-    animationDepth: 15    //default animation depth to be modified based on how much the column is occupied already
-}
 
 
 export default props => {
     //Main game component
 
 
-    const initialCanvas = Array(6).fill(Array(7).fill(0)); //The initial(empty) canvas
+    //const initialCanvas = Array(6).fill(Array(7).fill(0)); //The initial(empty) canvas
     const [state, dispatch] = useReducer(GameReducer, initialState);
     const { canvas, activePlayer, gameOn, gameOver, activeRow, computerOpponent, animationClass, animationDepth } = state;
 
@@ -44,13 +35,13 @@ export default props => {
 
     const clearGame = () => {
         //Resets game
-        dispatch({ type: "resetGame" });
+        dispatch({ type: RESET_GAME });
     };
 
     const changeOpponent = () => {
         //Toggles between ai/human oppoent
         clearGame();
-        dispatch({ type: "toggleComputerOpponent" })
+        dispatch({ type: TOGGLE_COMPUTER_OPPONENT })
     };
 
 
@@ -58,23 +49,23 @@ export default props => {
     const updateCb = i => {
         //callback that updates canvas and triggers animations after each turn
 
-        dispatch({ type: "toggleAnimationClass" })
+        dispatch({ type: TOGGLE_ANIMATION_CLASS })
         const animationDepth = 15 - ((6 - transpose(copyArray(canvas))[i].filter(x => !x).length) * 2.5);
-        dispatch({ type: "changeAnimationDepth", payload: animationDepth })
+        dispatch({ type: CHANGE_ANIMATION_DEPTH, payload: animationDepth })
         setTimeout(() => {
-            dispatch({ type: "toggleAnimationClass" })
+            dispatch({ type: TOGGLE_ANIMATION_CLASS })
             if (gameOn) {
                 let newArr = transpose(copyArray(canvas)); //transpose to append field to row
                 let copyToCompare = copyArray(newArr); //used to compare if any changes occured and move was valid
                 newArr = updateCanvas(i, newArr, activePlayer);
-                dispatch({ type: "updateCanvas", payload: transpose(newArr) }); //retranspose the array and update state
+                dispatch({ type: UPDATE_CANVAS, payload: transpose(newArr) }); //retranspose the array and update state
                 //If any player has 4 in a row end game
                 if (check(transpose(newArr), activePlayer)) {
-                    dispatch({ type: "endGame" })
+                    dispatch({ type: END_GAME })
                 } else {
                     //compare is coin could have been placed and array changed appearance, only then change turn
                     if (!copyToCompare.compare(newArr)) {
-                        dispatch({ type: "changeTurn" })
+                        dispatch({ type: CHANGE_TURN })
                     }
                 }
             }
@@ -93,12 +84,12 @@ export default props => {
             let newArr = transpose(copyArray(canvas));
             let res = minimax(canvas, 3, true)[0];
             newArr = updateCanvas(res, newArr, 2);
-            dispatch({ type: "updateCanvas", payload: transpose(newArr) })
+            dispatch({ type: UPDATE_CANVAS, payload: transpose(newArr) })
             if (check(transpose(newArr), activePlayer)) {
-                dispatch({ type: "endGame" })
+                dispatch({ type: END_GAME })
             } else {
 
-                dispatch({ type: "changeTurn" });
+                dispatch({ type: CHANGE_TURN });
             }
 
         }, 1000);
@@ -127,7 +118,7 @@ export default props => {
                     !gameOver && (
                         <button
                             className="btn btn-danger"
-                            onClick={() => { dispatch({ type: "toggleGameStatus" }) }}
+                            onClick={() => { dispatch({ type: TOGGLE_GAME_STATUS }) }}
                         >
                             Start
               </button>
