@@ -1,0 +1,164 @@
+@import url("https://fonts.googleapis.com/css?family=ZCOOL+KuaiLe");
+@import url("https://fonts.googleapis.com/css?family=Gugi");
+
+$main-bg-color: #142027;
+$font-cursive-1: "ZCOOL KuaiLe", cursive;
+$font-cursive-2: "Gugi", cursive;
+
+@mixin table-field($width, $height) {
+  height: $height;
+  background-color: $main-bg-color;
+  border-radius: 50%;
+  width: $width;
+}
+
+body {
+  background-color: $main-bg-color;
+  box-sizing: border-box;
+}
+
+button {
+  font-family: $font-cursive-2;
+  font-size: 1rem;
+  position: absolute;
+  border-radius: 5px;
+  top: 0.5rem;
+  right: 2rem;
+  width: 5rem;
+  height: 2rem;
+  background-color: lighten(#444857, 10%);
+  border-color: $main-bg-color;
+  &:hover {
+    outline: none;
+    cursor: pointer;
+  }
+}
+
+.table {
+  margin: 0rem auto 2rem;
+  border-radius: 5%;
+  background-color: blue;
+  width: 20rem;
+  &__field {
+    height: 2.5rem;
+    background-color: $main-bg-color;
+    border-radius: 50%;
+    width: 5rem;
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  &__active1 {
+    background-color: yellow;
+  }
+  &__active2 {
+    background-color: red;
+  }
+}
+
+.msg {
+  position: absolute;
+  top: 1rem;
+  right: 2%;
+  font-size: 2rem;
+  font-family: $font-cursive-2;
+  &1 {
+    color: yellow;
+  }
+  &2 {
+    color: red;
+  }
+  &__activePlayerTurn {
+    right: 1%;
+  }
+}
+
+.hover-table {
+  margin: 5rem auto 0;
+  &__field {
+    display: inline-block;
+    margin: 0.2rem;
+    @include table-field(2.3rem, 2.3rem);
+    &:hover {
+      cursor: pointer;
+    }
+  }
+}
+
+.hover1hover-active {
+  background-color: yellow;
+  position: relative;
+}
+.hover2hover-active {
+  background-color: red;
+  position: relative;
+}
+
+.switch {
+  position: relative;
+  left: 3rem;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  &__input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  &__slider {
+    border-radius: 34px;
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #444857;
+    transition: 0.4s;
+    &:before {
+      border-radius: 50%;
+
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.4s;
+    }
+  }
+  &__input:checked + &__slider {
+    background-color: #2196f3;
+  }
+  &__input:checked + &__slider:before {
+    transform: translateX(26px);
+  }
+  &__input:focus + &__slider {
+    box-shadow: 0 0 1px #2196f3;
+  }
+}
+
+.opponent-changer {
+  width: 40%;
+  margin-top: -0.5rem;
+  h4 {
+    color: #444857;
+    font-family: $font-cursive-2;
+  }
+}
+
+.animate-coin {
+  animation-name: move-down;
+  animation-duration: 1s;
+}
+
+@keyframes move-down {
+  0% {
+    top: 0;
+  }
+  100% {
+    top: 15rem;
+  }
+}
