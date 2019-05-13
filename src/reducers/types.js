@@ -8,3 +8,4 @@ export const UPDATE_ACTIVE_ROW = 'updateActiveRow';
 export const TOGGLE_COMPUTER_OPPONENT = 'toggleComputerOpponent';
 export const TOGGLE_ANIMATION_CLASS = 'toggleAnimationClass';
 export const CHANGE_ANIMATION_DEPTH = 'changeAnimationDepth';
+export const CHANGE_DIFFICULTY = 'changeDifficulty';

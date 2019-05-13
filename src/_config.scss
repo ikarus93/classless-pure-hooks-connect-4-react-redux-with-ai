@@ -1,0 +1,15 @@
+$main-bg-color: #142027;
+$font-cursive-1: "ZCOOL KuaiLe", cursive;
+$font-cursive-2: "Gugi", cursive;
+
+@mixin table-field($width, $height) {
+  height: $height;
+  background-color: $main-bg-color;
+  border-radius: 50%;
+  width: $width;
+}
+
+@mixin main-heading-styles() {
+  color: #444857;
+  font-family: $font-cursive-2;
+}

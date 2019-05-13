@@ -8,5 +8,6 @@ export const initialState = {
     activeRow: null,  //row that has been hovered ("column" but as the canvas is being stored transposed its actually the row)
     computerOpponent: false,   //play vs. computer
     animationClass: false,  //used to trigger animation
-    animationDepth: 15    //default animation depth to be modified based on how much the column is occupied already
+    animationDepth: 15,    //default animation depth to be modified based on how much the column is occupied already
+    difficulty: 0    //sets difficulty of computer opponent
 }

@@ -1,4 +1,4 @@
-import { UPDATE_CANVAS, CHANGE_TURN, TOGGLE_GAME_STATUS, START_GAME, RESET_GAME, END_GAME, UPDATE_ACTIVE_ROW, TOGGLE_COMPUTER_OPPONENT, TOGGLE_ANIMATION_CLASS, CHANGE_ANIMATION_DEPTH } from "./types";
+import { UPDATE_CANVAS, CHANGE_TURN, TOGGLE_GAME_STATUS, START_GAME, RESET_GAME, END_GAME, UPDATE_ACTIVE_ROW, TOGGLE_COMPUTER_OPPONENT, TOGGLE_ANIMATION_CLASS, CHANGE_ANIMATION_DEPTH, CHANGE_DIFFICULTY } from "./types";
 import { initialState } from "./initialState"
 
 
@@ -24,6 +24,9 @@ export default (state, action) => {
         case TOGGLE_ANIMATION_CLASS:
             return { ...state, animationClass: !state.animationClass };
         case CHANGE_ANIMATION_DEPTH:
-            return { ...state, animationDepth: action.payload }
+            return { ...state, animationDepth: action.payload };
+        case CHANGE_DIFFICULTY:
+            console.log("here")
+            return { ...state, difficulty: action.payload };
     }
 }

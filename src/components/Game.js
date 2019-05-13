@@ -1,18 +1,22 @@
 import React, { useReducer, useEffect, Fragment } from 'react';
+
+
+//Components
 import AppContext from "./AppContext";
 import ToggleSwitch from "./ToggleSwitch";
 import HoverTable from "./HoverTable";
 import Canvas from "./Canvas";
+import GameControls from "./GameControls";
+
+//Helper functions
 import { compare, copyArray, transpose, updateCanvas, check } from "../helpers/helpers";
 import minimax from "../ai/minimax";
 
+
+//Reducers/Reduce related
 import { UPDATE_CANVAS, CHANGE_TURN, TOGGLE_GAME_STATUS, START_GAME, RESET_GAME, END_GAME, UPDATE_ACTIVE_ROW, TOGGLE_COMPUTER_OPPONENT, TOGGLE_ANIMATION_CLASS, CHANGE_ANIMATION_DEPTH } from "../reducers/types";
 import GameReducer from "../reducers/gameReducer"
 import { initialState } from "../reducers/initialState"
-
-
-
-
 
 
 export default props => {
@@ -21,7 +25,7 @@ export default props => {
 
     //const initialCanvas = Array(6).fill(Array(7).fill(0)); //The initial(empty) canvas
     const [state, dispatch] = useReducer(GameReducer, initialState);
-    const { canvas, activePlayer, gameOn, gameOver, activeRow, computerOpponent, animationClass, animationDepth } = state;
+    const { canvas, activePlayer, gameOn, gameOver, activeRow, computerOpponent, animationClass, animationDepth, difficulty } = state;
 
     useEffect(
         () => {
@@ -40,7 +44,6 @@ export default props => {
 
     const changeOpponent = () => {
         //Toggles between ai/human oppoent
-        clearGame();
         dispatch({ type: TOGGLE_COMPUTER_OPPONENT })
     };
 
@@ -48,7 +51,7 @@ export default props => {
 
     const updateCb = i => {
         //callback that updates canvas and triggers animations after each turn
-
+        console.log("IS IT RUNNING????")
         dispatch({ type: TOGGLE_ANIMATION_CLASS })
         const animationDepth = 15 - ((6 - transpose(copyArray(canvas))[i].filter(x => !x).length) * 2.5);
         dispatch({ type: CHANGE_ANIMATION_DEPTH, payload: animationDepth })
@@ -64,7 +67,7 @@ export default props => {
                     dispatch({ type: END_GAME })
                 } else {
                     //compare is coin could have been placed and array changed appearance, only then change turn
-                    if (!copyToCompare.compare(newArr)) {
+                    if (!compare(copyToCompare, newArr)) {
                         dispatch({ type: CHANGE_TURN })
                     }
                 }
@@ -88,7 +91,6 @@ export default props => {
             if (check(transpose(newArr), activePlayer)) {
                 dispatch({ type: END_GAME })
             } else {
-
                 dispatch({ type: CHANGE_TURN });
             }
 
@@ -104,7 +106,8 @@ export default props => {
         changeOpponent,
         dispatch,
         animationClass,
-        animationDepth
+        animationDepth,
+        difficulty
     }; //State to be injected into apps context
 
     return (
@@ -114,6 +117,10 @@ export default props => {
                     <h4>Play against {computerOpponent ? "Computer" : "Human"} </h4>
                     <ToggleSwitch />
                 </div>{" "}
+                {computerOpponent &&
+                    <div className="game-controls">
+                        <GameControls />
+                    </div>}
                 {!gameOn &&
                     !gameOver && (
                         <button

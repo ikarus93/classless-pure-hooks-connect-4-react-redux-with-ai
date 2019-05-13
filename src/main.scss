@@ -1,17 +1,8 @@
 @import url("https://fonts.googleapis.com/css?family=ZCOOL+KuaiLe");
 @import url("https://fonts.googleapis.com/css?family=Gugi");
 
-$main-bg-color: #142027;
-$font-cursive-1: "ZCOOL KuaiLe", cursive;
-$font-cursive-2: "Gugi", cursive;
-
-@mixin table-field($width, $height) {
-  height: $height;
-  background-color: $main-bg-color;
-  border-radius: 50%;
-  width: $width;
-}
-
+@import "config";
+@import "inputrange";
 body {
   background-color: $main-bg-color;
   box-sizing: border-box;
@@ -144,21 +135,24 @@ button {
   width: 40%;
   margin-top: -0.5rem;
   h4 {
-    color: #444857;
-    font-family: $font-cursive-2;
+    @include main-heading-styles;
   }
 }
 
-.animate-coin {
-  animation-name: move-down;
-  animation-duration: 1s;
-}
-
-@keyframes move-down {
-  0% {
-    top: 0;
+.game-controls {
+  position: absolute;
+  top: -0.5rem;
+  left: 40%;
+  h4 {
+    @include main-heading-styles;
   }
-  100% {
-    top: 15rem;
+  span {
+    font-size: 1.2rem;
+    margin: 0 0.5rem;
+    @include main-heading-styles;
+  }
+
+  input {
+    width: 40%;
   }
 }
