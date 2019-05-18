@@ -11,7 +11,7 @@ import Canvas from "./Canvas";
 import GameControls from "./GameControls";
 
 //Helper functions
-import { compare, copyArray, transpose, updateCanvas, check } from "../helpers/helpers";
+import { compare, copyArray, transpose, updateCanvas, check, genRandNum } from "../helpers/helpers";
 import minimax from "../ai/minimax";
 
 
