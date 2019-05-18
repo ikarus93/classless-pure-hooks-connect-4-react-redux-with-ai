@@ -1,4 +1,6 @@
 import React, { useReducer, useEffect, Fragment } from 'react';
+import ioClient from 'socket.io-client'
+
 
 
 //Components
@@ -26,6 +28,7 @@ export default props => {
     //const initialCanvas = Array(6).fill(Array(7).fill(0)); //The initial(empty) canvas
     const [state, dispatch] = useReducer(GameReducer, initialState);
     const { canvas, activePlayer, gameOn, gameOver, activeRow, computerOpponent, animationClass, animationDepth, difficulty } = state;
+    let io = ioClient('http://localhost:3000');
 
     useEffect(
         () => {
@@ -51,24 +54,28 @@ export default props => {
 
     const updateCb = i => {
         //callback that updates canvas and triggers animations after each turn
-        console.log("IS IT RUNNING????")
         dispatch({ type: TOGGLE_ANIMATION_CLASS })
+
         const animationDepth = 15 - ((6 - transpose(copyArray(canvas))[i].filter(x => !x).length) * 2.5);
         dispatch({ type: CHANGE_ANIMATION_DEPTH, payload: animationDepth })
+
         setTimeout(() => {
-            dispatch({ type: TOGGLE_ANIMATION_CLASS })
+            dispatch({ type: TOGGLE_ANIMATION_CLASS });
             if (gameOn) {
+
                 let newArr = transpose(copyArray(canvas)); //transpose to append field to row
                 let copyToCompare = copyArray(newArr); //used to compare if any changes occured and move was valid
                 newArr = updateCanvas(i, newArr, activePlayer);
                 dispatch({ type: UPDATE_CANVAS, payload: transpose(newArr) }); //retranspose the array and update state
                 //If any player has 4 in a row end game
+
                 if (check(transpose(newArr), activePlayer)) {
-                    dispatch({ type: END_GAME })
+                    dispatch({ type: END_GAME });
+
                 } else {
                     //compare is coin could have been placed and array changed appearance, only then change turn
                     if (!compare(copyToCompare, newArr)) {
-                        dispatch({ type: CHANGE_TURN })
+                        dispatch({ type: CHANGE_TURN });
                     }
                 }
             }
@@ -79,15 +86,19 @@ export default props => {
 
     const computerMakeMove = () => {
         setTimeout(() => {
-            /*      let copyToCompare = copyArray(newArr);
-                  do {
-                    newArr = updateCanvas(genRandNum(0, 6), newArr, activePlayer);
-                  } while (copyToCompare.compare(newArr));
-                      */
+
             let newArr = transpose(copyArray(canvas));
-            let res = minimax(canvas, 3, true)[0];
-            newArr = updateCanvas(res, newArr, 2);
+            let copyToCompare = copyArray(newArr);
+            let res;
+
+            do {
+                //If difficulty 0 generate random number, else call minimax with adjusted depth based on difficulty level
+                res = !difficulty ? genRandNum(0, 6) : minimax(canvas, difficulty + 1, true)[0];;
+                newArr = updateCanvas(res, newArr, 2);
+            } while (compare(copyToCompare, newArr)); //comparing used to determine if random number chosen can be applied to any column that still has space left for coin
+
             dispatch({ type: UPDATE_CANVAS, payload: transpose(newArr) })
+
             if (check(transpose(newArr), activePlayer)) {
                 dispatch({ type: END_GAME })
             } else {

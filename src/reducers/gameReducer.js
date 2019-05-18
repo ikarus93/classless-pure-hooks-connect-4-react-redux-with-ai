@@ -26,7 +26,6 @@ export default (state, action) => {
         case CHANGE_ANIMATION_DEPTH:
             return { ...state, animationDepth: action.payload };
         case CHANGE_DIFFICULTY:
-            console.log("here")
             return { ...state, difficulty: action.payload };
     }
 }
