@@ -92,8 +92,8 @@ export default props => {
             let res;
 
             do {
-                //If difficulty 0 generate random number, else call minimax with adjusted depth based on difficulty level
-                res = !difficulty ? genRandNum(0, 6) : minimax(canvas, difficulty + 1, true)[0];;
+                //If difficulty 0, or difficulty is medium and generate random number is 1 (50% chance of generating a Random number for endresult as previous attempts of running the algorithm with depth of 2 was still too difficult)  generate random number, else call minimax with adjusted depth based on difficulty level
+                res = !difficulty || (difficulty === 1 && genRandNum(0, 1)) ? genRandNum(0, 6) : minimax(canvas, 3, true)[0];
                 newArr = updateCanvas(res, newArr, 2);
             } while (compare(copyToCompare, newArr)); //comparing used to determine if random number chosen can be applied to any column that still has space left for coin
 

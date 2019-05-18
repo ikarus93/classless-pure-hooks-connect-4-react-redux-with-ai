@@ -8,7 +8,7 @@ export default props => {
 
     return (<div>
         <h4>Difficulty Level of AI opponent</h4>
-        <span>Easy</span> <input type="range" min="0" max="2" value={difficulty} name="range" onChange={(e) => { dispatch({ type: CHANGE_DIFFICULTY, payload: e.target.value }) }} /> <span>Hard</span>
+        <span>Easy</span> <input type="range" min="0" max="2" value={difficulty} name="range" onChange={(e) => { dispatch({ type: CHANGE_DIFFICULTY, payload: +e.target.value }) }} /> <span>Hard</span>
     </div >)
 
 }
