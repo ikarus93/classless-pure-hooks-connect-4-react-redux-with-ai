@@ -50,7 +50,7 @@ export default props => {
         () => {
             if (!offlineMode) {
 
-                //Sets event listeners for socket instance current player id
+                //Sets event listeners for socket instance current player id if socket just connected
                 //dispatchMultiplayerReducer({ type: SET_CURRENT_PLAYER_ID, payload: socket.id });
 
                 //event listeners
@@ -60,7 +60,7 @@ export default props => {
                 socket.emit("fetchListOfUsers", ""); //load user list from io
             }
         },
-        [socket]
+        [socket] //run only if socket variable changes
     );
 
 
@@ -137,16 +137,18 @@ export default props => {
 
 
     const toggleOfflineMode = () => {
-        console.log("here")
+        //Toggles mode for player wanting to play online
         if (offlineMode) {
+            //Create socket connection and add to reducer
             let newSocket = ioClient("/");
             dispatchMultiplayerReducer({ type: ADD_SOCKET, payload: newSocket });
         } else {
+            //Disconnect user
             socket.disconnect();
             dispatchMultiplayerReducer({ type: DISCONNECT_SOCKET })
         }
 
-        dispatchGameReducer({ type: TOGGLE_OFFLINE_MODE });
+        dispatchGameReducer({ type: TOGGLE_OFFLINE_MODE }); //for updating ui
 
     }
 
