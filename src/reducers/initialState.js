@@ -9,11 +9,12 @@ export const initialStateGame = {
     computerOpponent: false,   //play vs. computer
     animationClass: false,  //used to trigger animation
     animationDepth: 15,    //default animation depth to be modified based on how much the column is occupied already
-    difficulty: 0    //sets difficulty of computer opponent
+    difficulty: 0,   //sets difficulty of computer opponent
+    offlineMode: true
 }
 
 export const initialStateMultiplayer = {
     playersAvailable: [],
     opponentId: null,
-    currentPlayerId: null
+    socket: null
 }

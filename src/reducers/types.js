@@ -11,9 +11,11 @@ export const TOGGLE_COMPUTER_OPPONENT = 'toggleComputerOpponent';
 export const TOGGLE_ANIMATION_CLASS = 'toggleAnimationClass';
 export const CHANGE_ANIMATION_DEPTH = 'changeAnimationDepth';
 export const CHANGE_DIFFICULTY = 'changeDifficulty';
+export const TOGGLE_OFFLINE_MODE = 'toggleOfflineMode';
 
 
 //MultiplayerReducer
 export const UPDATE_LIST_OF_ACTIVE_PLAYERS = 'updateListOfPlayers';
 export const ADD_OPPONENT = 'addOpponent';
-export const SET_CURRENT_PLAYER_ID = 'setCurrentPlayerId';
+export const ADD_SOCKET = 'addSocket';
+export const DISCONNECT_SOCKET = 'disconnectSocket';

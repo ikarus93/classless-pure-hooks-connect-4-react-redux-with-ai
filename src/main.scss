@@ -8,7 +8,7 @@ body {
   box-sizing: border-box;
 }
 
-button {
+.btn--toggle--game--status {
   font-family: $font-cursive-2;
   font-size: 1rem;
   position: absolute;
@@ -155,4 +155,7 @@ button {
   input {
     width: 40%;
   }
+}
+
+.btn--toggle--offline--mode {
 }

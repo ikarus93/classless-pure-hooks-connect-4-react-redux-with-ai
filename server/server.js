@@ -26,7 +26,6 @@ io.on('connection', socket => {
         io.emit("userLeft", usersOnline.map(x => x.client.id));
     })
 
-
 });
 
 

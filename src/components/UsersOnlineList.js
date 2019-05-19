@@ -7,11 +7,11 @@ const ListEntry = ({ name, cb }) => {
 
 export default props => {
 
-    const { state: { playersAvailable, currentPlayerId }, dispatchMultiplayerReducer } = useContext(AppContext);
+    const { state: { playersAvailable, socket }, dispatchMultiplayerReducer } = useContext(AppContext);
 
     console.log(playersAvailable)
 
-    return (<ul>{playersAvailable.filter(x => x !== currentPlayerId).map(player => {
+    return (<ul>{playersAvailable.filter(x => x !== socket.id).map(player => {
         return <ListEntry name={player} />
     })}</ul>)
 }

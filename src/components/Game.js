@@ -1,4 +1,6 @@
 import React, { useReducer, useEffect, Fragment } from 'react';
+import ioClient from 'socket.io-client';
+
 
 
 
@@ -16,24 +18,21 @@ import minimax from "../ai/minimax";
 
 
 //Reducers related
-import { UPDATE_CANVAS, CHANGE_TURN, TOGGLE_GAME_STATUS, START_GAME, RESET_GAME, END_GAME, UPDATE_ACTIVE_ROW, TOGGLE_COMPUTER_OPPONENT, TOGGLE_ANIMATION_CLASS, CHANGE_ANIMATION_DEPTH } from "../reducers/types";
+import { UPDATE_CANVAS, CHANGE_TURN, TOGGLE_GAME_STATUS, START_GAME, RESET_GAME, END_GAME, UPDATE_ACTIVE_ROW, TOGGLE_COMPUTER_OPPONENT, TOGGLE_ANIMATION_CLASS, CHANGE_ANIMATION_DEPTH, TOGGLE_OFFLINE_MODE, ADD_SOCKET, DISCONNECT_SOCKET } from "../reducers/types";
 import GameReducer from "../reducers/gameReducer";
 import { UPDATE_LIST_OF_ACTIVE_PLAYERS, ADD_OPPONENT, SET_CURRENT_PLAYER_ID } from "../reducers/types";
 import MultiplayerReducer from "../reducers/multiplayerReducer";
 import { initialStateGame, initialStateMultiplayer } from "../reducers/initialState"
 
 
-export default ({ socket }) => {
+export default props => {
     //Main game component
-    console.log(socket.id)
-
 
     //const initialCanvas = Array(6).fill(Array(7).fill(0)); //The initial(empty) canvas
     const [gameState, dispatchGameReducer] = useReducer(GameReducer, initialStateGame);
     const [multiplayerState, dispatchMultiplayerReducer] = useReducer(MultiplayerReducer, initialStateMultiplayer)
-    const { activePlayer, computerOpponent, gameOn, gameOver, canvas, difficulty } = gameState;
-
-
+    const { activePlayer, computerOpponent, gameOn, gameOver, canvas, difficulty, offlineMode } = gameState;
+    const { socket } = multiplayerState;
 
 
 
@@ -47,22 +46,23 @@ export default ({ socket }) => {
         [activePlayer]
     );
 
-
     useEffect(
         () => {
-            //Have this hook only run once to prevent infinite render loop
-            //Sets event listeners for socket instance current player id
-            dispatchMultiplayerReducer({ type: SET_CURRENT_PLAYER_ID, payload: socket.id });
+            if (!offlineMode) {
 
-            //event listeners
-            socket.on("newUserJoined", updated => dispatchMultiplayerReducer({ type: UPDATE_LIST_OF_ACTIVE_PLAYERS, payload: updated }));
-            socket.on("userLeft", updated => dispatchMultiplayerReducer({ type: UPDATE_LIST_OF_ACTIVE_PLAYERS, payload: updated }));
+                //Sets event listeners for socket instance current player id
+                //dispatchMultiplayerReducer({ type: SET_CURRENT_PLAYER_ID, payload: socket.id });
 
-            socket.emit("fetchListOfUsers", ""); //load user list from io
+                //event listeners
+                socket.on("newUserJoined", updated => dispatchMultiplayerReducer({ type: UPDATE_LIST_OF_ACTIVE_PLAYERS, payload: updated }));
+                socket.on("userLeft", updated => dispatchMultiplayerReducer({ type: UPDATE_LIST_OF_ACTIVE_PLAYERS, payload: updated }));
 
+                socket.emit("fetchListOfUsers", ""); //load user list from io
+            }
         },
-        []
+        [socket]
     );
+
 
 
 
@@ -136,14 +136,30 @@ export default ({ socket }) => {
     };
 
 
+    const toggleOfflineMode = () => {
+        console.log("here")
+        if (offlineMode) {
+            let newSocket = ioClient("/");
+            dispatchMultiplayerReducer({ type: ADD_SOCKET, payload: newSocket });
+        } else {
+            socket.disconnect();
+            dispatchMultiplayerReducer({ type: DISCONNECT_SOCKET })
+        }
+
+        dispatchGameReducer({ type: TOGGLE_OFFLINE_MODE });
+
+    }
+
 
     return (
         <Fragment>
             <AppContext.Provider value={{ state: { ...gameState, ...multiplayerState }, dispatchGameReducer, dispatchMultiplayerReducer, changeOpponent, updateCb }}>
-                <div className="opponent-changer">
-                    <h4>Play against {computerOpponent ? "Computer" : "Human"} </h4>
-                    <ToggleSwitch />
-                </div>{" "}
+                {offlineMode &&
+                    <div className="opponent-changer">
+                        <h4>Play against {computerOpponent ? "Computer" : "Human"} </h4>
+                        <ToggleSwitch />
+                    </div>}
+                <button className="btn--toggle--offline--mode" onClick={toggleOfflineMode}>{offlineMode ? "Play Online" : "Play Offline"}</button>
                 {computerOpponent &&
                     <div className="game-controls">
                         <GameControls />
@@ -151,7 +167,7 @@ export default ({ socket }) => {
                 {!gameOn &&
                     !gameOver && (
                         <button
-                            className="btn btn-danger"
+                            className="btn--toggle--game--status"
                             onClick={() => { dispatchGameReducer({ type: TOGGLE_GAME_STATUS }) }}
                         >
                             Start
@@ -182,8 +198,8 @@ export default ({ socket }) => {
                         Turn
             </h4>
                 )}
-
-                <UsersOnlineList />
+                {!offlineMode &&
+                    <UsersOnlineList />}
             </AppContext.Provider>
         </Fragment >
     );
