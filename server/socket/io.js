@@ -1,11 +1,23 @@
 const app = require('express')(),
     http = require("http").Server(app),
-    io = require("socket.io")(http);
+    io = require("socket.io")(http),
+    { promisify } = require("util");
 
+
+const usersOnline = [];
 
 io.on('connection', function (socket) {
-    console.log('a user connected');
+    usersOnline.push(socket);
+    io.emit("newUserJoined", usersOnline.map(x => x.client.id));
 });
+
+
+(async () => {
+    con
+
+})();
+
+
 
 
 

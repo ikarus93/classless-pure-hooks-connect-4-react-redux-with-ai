@@ -1,6 +1,6 @@
 
 
-export const initialState = {
+export const initialStateGame = {
     canvas: Array(6).fill(Array(7).fill(0)), //Holds copy/instance of canvas
     activePlayer: 1, //player who has current turn
     gameOn: false, //game is running
@@ -10,4 +10,9 @@ export const initialState = {
     animationClass: false,  //used to trigger animation
     animationDepth: 15,    //default animation depth to be modified based on how much the column is occupied already
     difficulty: 0    //sets difficulty of computer opponent
+}
+
+export const initialStateMultiplayer = {
+    playersAvailable: [],
+    opponentId: null
 }

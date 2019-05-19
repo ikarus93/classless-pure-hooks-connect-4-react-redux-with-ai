@@ -13,7 +13,7 @@ const AnimatedTd = styled.td`
 
 export default props => {
     //Hover table on top of canvas that shows coin if user hovers row and loads animation if animationClass is triggered from context
-    const { activePlayer, activeRow, animationClass, animationDepth } = useContext(AppContext);
+    const { state: {activePlayer, activeRow, animationClass, animationDepth} } = useContext(AppContext);
 
     return (
         <table className="hover-table">

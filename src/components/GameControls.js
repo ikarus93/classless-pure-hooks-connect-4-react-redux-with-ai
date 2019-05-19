@@ -4,11 +4,12 @@ import AppContext from "./AppContext"
 import { CHANGE_DIFFICULTY } from "../reducers/types"
 
 export default props => {
-    const { difficulty, dispatch } = useContext(AppContext);
+    const { state: { difficulty }, dispatchGameReducer
+    } = useContext(AppContext);
 
     return (<div>
         <h4>Difficulty Level of AI opponent</h4>
-        <span>Easy</span> <input type="range" min="0" max="2" value={difficulty} name="range" onChange={(e) => { dispatch({ type: CHANGE_DIFFICULTY, payload: +e.target.value }) }} /> <span>Hard</span>
+        <span>Easy</span> <input type="range" min="0" max="2" value={difficulty} name="range" onChange={(e) => { dispatchGameReducer({ type: CHANGE_DIFFICULTY, payload: +e.target.value }) }} /> <span>Hard</span>
     </div >)
 
 }

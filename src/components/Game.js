@@ -1,5 +1,5 @@
 import React, { useReducer, useEffect, Fragment } from 'react';
-import ioClient from 'socket.io-client'
+import ioClient from 'socket.io-client';
 
 
 
@@ -15,10 +15,12 @@ import { compare, copyArray, transpose, updateCanvas, check, genRandNum } from "
 import minimax from "../ai/minimax";
 
 
-//Reducers/Reduce related
+//Reducers related
 import { UPDATE_CANVAS, CHANGE_TURN, TOGGLE_GAME_STATUS, START_GAME, RESET_GAME, END_GAME, UPDATE_ACTIVE_ROW, TOGGLE_COMPUTER_OPPONENT, TOGGLE_ANIMATION_CLASS, CHANGE_ANIMATION_DEPTH } from "../reducers/types";
-import GameReducer from "../reducers/gameReducer"
-import { initialState } from "../reducers/initialState"
+import GameReducer from "../reducers/gameReducer";
+import MultiplayerReducer from "../reducers/multiplayerReducer";
+import { initialStateGame, initialStateMultiplayer } from "../reducers/initialState"
+
 
 
 export default props => {
@@ -26,9 +28,14 @@ export default props => {
 
 
     //const initialCanvas = Array(6).fill(Array(7).fill(0)); //The initial(empty) canvas
-    const [state, dispatch] = useReducer(GameReducer, initialState);
-    const { canvas, activePlayer, gameOn, gameOver, activeRow, computerOpponent, animationClass, animationDepth, difficulty } = state;
-    let io = ioClient('http://localhost:3000');
+    const [gameState, dispatchGameReducer] = useReducer(GameReducer, initialStateGame);
+    const [multiplayerState, dispatchMultiplayerReducer] = useReducer(MultiplayerReducer, initialStateMultiplayer)
+    const { activePlayer, computerOpponent, gameOn, gameOver, canvas, difficulty } = gameState;
+
+    let socket = ioClient('http://localhost:3000');
+
+    //Listening to websocket emits
+    socket.on("newUserJoined", user => console.log(user))
 
     useEffect(
         () => {
@@ -42,40 +49,40 @@ export default props => {
 
     const clearGame = () => {
         //Resets game
-        dispatch({ type: RESET_GAME });
+        dispatchGameReducer({ type: RESET_GAME });
     };
 
     const changeOpponent = () => {
         //Toggles between ai/human oppoent
-        dispatch({ type: TOGGLE_COMPUTER_OPPONENT })
+        dispatchGameReducer({ type: TOGGLE_COMPUTER_OPPONENT })
     };
 
 
 
     const updateCb = i => {
         //callback that updates canvas and triggers animations after each turn
-        dispatch({ type: TOGGLE_ANIMATION_CLASS })
+        dispatchGameReducer({ type: TOGGLE_ANIMATION_CLASS })
 
         const animationDepth = 15 - ((6 - transpose(copyArray(canvas))[i].filter(x => !x).length) * 2.5);
-        dispatch({ type: CHANGE_ANIMATION_DEPTH, payload: animationDepth })
+        dispatchGameReducer({ type: CHANGE_ANIMATION_DEPTH, payload: animationDepth })
 
         setTimeout(() => {
-            dispatch({ type: TOGGLE_ANIMATION_CLASS });
+            dispatchGameReducer({ type: TOGGLE_ANIMATION_CLASS });
             if (gameOn) {
 
                 let newArr = transpose(copyArray(canvas)); //transpose to append field to row
                 let copyToCompare = copyArray(newArr); //used to compare if any changes occured and move was valid
                 newArr = updateCanvas(i, newArr, activePlayer);
-                dispatch({ type: UPDATE_CANVAS, payload: transpose(newArr) }); //retranspose the array and update state
+                dispatchGameReducer({ type: UPDATE_CANVAS, payload: transpose(newArr) }); //retranspose the array and update state
                 //If any player has 4 in a row end game
 
                 if (check(transpose(newArr), activePlayer)) {
-                    dispatch({ type: END_GAME });
+                    dispatchGameReducer({ type: END_GAME });
 
                 } else {
                     //compare is coin could have been placed and array changed appearance, only then change turn
                     if (!compare(copyToCompare, newArr)) {
-                        dispatch({ type: CHANGE_TURN });
+                        dispatchGameReducer({ type: CHANGE_TURN });
                     }
                 }
             }
@@ -97,33 +104,22 @@ export default props => {
                 newArr = updateCanvas(res, newArr, 2);
             } while (compare(copyToCompare, newArr)); //comparing used to determine if random number chosen can be applied to any column that still has space left for coin
 
-            dispatch({ type: UPDATE_CANVAS, payload: transpose(newArr) })
+            dispatchGameReducer({ type: UPDATE_CANVAS, payload: transpose(newArr) })
 
             if (check(transpose(newArr), activePlayer)) {
-                dispatch({ type: END_GAME })
+                dispatchGameReducer({ type: END_GAME })
             } else {
-                dispatch({ type: CHANGE_TURN });
+                dispatchGameReducer({ type: CHANGE_TURN });
             }
 
         }, 1000);
     };
 
-    const gameState = {
-        canvas,
-        gameOn,
-        updateCb,
-        activePlayer,
-        activeRow,
-        changeOpponent,
-        dispatch,
-        animationClass,
-        animationDepth,
-        difficulty
-    }; //State to be injected into apps context
+
 
     return (
         <Fragment>
-            <AppContext.Provider value={gameState}>
+            <AppContext.Provider value={{ state: { ...gameState, ...multiplayerState }, dispatchGameReducer, dispatchMultiplayerReducer, changeOpponent, updateCb }}>
                 <div className="opponent-changer">
                     <h4>Play against {computerOpponent ? "Computer" : "Human"} </h4>
                     <ToggleSwitch />
@@ -136,7 +132,7 @@ export default props => {
                     !gameOver && (
                         <button
                             className="btn btn-danger"
-                            onClick={() => { dispatch({ type: TOGGLE_GAME_STATUS }) }}
+                            onClick={() => { dispatchGameReducer({ type: TOGGLE_GAME_STATUS }) }}
                         >
                             Start
               </button>
@@ -167,6 +163,6 @@ export default props => {
             </h4>
                 )}
             </AppContext.Provider>
-        </Fragment>
+        </Fragment >
     );
 };

@@ -1,5 +1,5 @@
 import { UPDATE_CANVAS, CHANGE_TURN, TOGGLE_GAME_STATUS, START_GAME, RESET_GAME, END_GAME, UPDATE_ACTIVE_ROW, TOGGLE_COMPUTER_OPPONENT, TOGGLE_ANIMATION_CLASS, CHANGE_ANIMATION_DEPTH, CHANGE_DIFFICULTY } from "./types";
-import { initialState } from "./initialState"
+import { initialStateGame } from "./initialState"
 
 
 
@@ -14,13 +14,13 @@ export default (state, action) => {
         case START_GAME:
             return { ...state, gameOn: true, gameOver: false };
         case RESET_GAME:
-            return { ...initialState };
+            return { ...initialStateGame };
         case END_GAME:
             return { ...state, gameOn: false, gameOver: true };
         case UPDATE_ACTIVE_ROW:
             return { ...state, activeRow: action.payload };
         case TOGGLE_COMPUTER_OPPONENT:
-            return { ...initialState, computerOpponent: !state.computerOpponent };
+            return { ...initialStateGame, computerOpponent: !state.computerOpponent };
         case TOGGLE_ANIMATION_CLASS:
             return { ...state, animationClass: !state.animationClass };
         case CHANGE_ANIMATION_DEPTH:
