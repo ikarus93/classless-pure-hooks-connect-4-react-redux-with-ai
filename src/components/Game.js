@@ -1,5 +1,4 @@
 import React, { useReducer, useEffect, Fragment } from 'react';
-import ioClient from 'socket.io-client';
 
 
 
@@ -23,7 +22,7 @@ import { initialStateGame, initialStateMultiplayer } from "../reducers/initialSt
 
 
 
-export default props => {
+export default ({ socket }) => {
     //Main game component
 
 
@@ -32,7 +31,6 @@ export default props => {
     const [multiplayerState, dispatchMultiplayerReducer] = useReducer(MultiplayerReducer, initialStateMultiplayer)
     const { activePlayer, computerOpponent, gameOn, gameOver, canvas, difficulty } = gameState;
 
-    let socket = ioClient('http://localhost:3000');
 
     //Listening to websocket emits
     socket.on("newUserJoined", user => console.log(user))

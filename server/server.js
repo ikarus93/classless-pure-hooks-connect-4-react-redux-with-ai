@@ -1,14 +1,30 @@
-const express = require("express"),
+const express = require('express'),
     app = express(),
-    path = require("path");
+    http = require("http").Server(app),
+    io = require("socket.io")(http),
+    path = require("path"),
+    { promisify } = require("util");
 
-app.use(express.static(path.join(__dirname, '..', "dist")));
+app.use(express.static(path.join(__dirname, '..', 'dist')));
 
 
-app.get("/", async (req, res, next) => {
+const usersOnline = [];
+
+io.on('connection', function (socket) {
+    usersOnline.push(socket);
+    io.emit("newUserJoined", usersOnline.map(x => x.client.id));
+});
+
+
+app.get('/', function (req, res, next) {
     res.sendFile(path.join(__dirname, '../dist/index.html'));
-})
+});
 
-app.listen(8080, () => {
-    console.log("app running");
-})
+
+
+
+
+http.listen(3000, () => {
+    console.log('listening on *:3000');
+});
+

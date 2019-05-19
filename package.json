@@ -6,9 +6,7 @@
   "scripts": {
     "test": "jest",
     "build": "webpack -p",
-    "start": "concurrently \"npm run server\" \"npm run io\"",
-    "server": "nodemon ./server/server.js",
-    "io": "nodemon ./server/socket/io.js"
+    "server": "nodemon ./server/server.js"
   },
   "author": "",
   "license": "ISC",
