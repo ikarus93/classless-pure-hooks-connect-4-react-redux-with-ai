@@ -8,6 +8,7 @@ import ToggleSwitch from "./ToggleSwitch";
 import HoverTable from "./HoverTable";
 import Canvas from "./Canvas";
 import GameControls from "./GameControls";
+import UsersOnlineList from "./UsersOnlineList";
 
 //Helper functions
 import { compare, copyArray, transpose, updateCanvas, check, genRandNum } from "../helpers/helpers";
@@ -17,13 +18,14 @@ import minimax from "../ai/minimax";
 //Reducers related
 import { UPDATE_CANVAS, CHANGE_TURN, TOGGLE_GAME_STATUS, START_GAME, RESET_GAME, END_GAME, UPDATE_ACTIVE_ROW, TOGGLE_COMPUTER_OPPONENT, TOGGLE_ANIMATION_CLASS, CHANGE_ANIMATION_DEPTH } from "../reducers/types";
 import GameReducer from "../reducers/gameReducer";
+import { UPDATE_LIST_OF_ACTIVE_PLAYERS, ADD_OPPONENT, SET_CURRENT_PLAYER_ID } from "../reducers/types";
 import MultiplayerReducer from "../reducers/multiplayerReducer";
 import { initialStateGame, initialStateMultiplayer } from "../reducers/initialState"
 
 
-
 export default ({ socket }) => {
     //Main game component
+    console.log(socket.id)
 
 
     //const initialCanvas = Array(6).fill(Array(7).fill(0)); //The initial(empty) canvas
@@ -32,8 +34,8 @@ export default ({ socket }) => {
     const { activePlayer, computerOpponent, gameOn, gameOver, canvas, difficulty } = gameState;
 
 
-    //Listening to websocket emits
-    socket.on("newUserJoined", user => console.log(user))
+
+
 
     useEffect(
         () => {
@@ -44,6 +46,26 @@ export default ({ socket }) => {
         },
         [activePlayer]
     );
+
+
+    useEffect(
+        () => {
+            //Have this hook only run once to prevent infinite render loop
+            //Sets event listeners for socket instance current player id
+            dispatchMultiplayerReducer({ type: SET_CURRENT_PLAYER_ID, payload: socket.id });
+
+            //event listeners
+            socket.on("newUserJoined", updated => dispatchMultiplayerReducer({ type: UPDATE_LIST_OF_ACTIVE_PLAYERS, payload: updated }));
+            socket.on("userLeft", updated => dispatchMultiplayerReducer({ type: UPDATE_LIST_OF_ACTIVE_PLAYERS, payload: updated }));
+
+            socket.emit("fetchListOfUsers", ""); //load user list from io
+
+        },
+        []
+    );
+
+
+
 
     const clearGame = () => {
         //Resets game
@@ -160,6 +182,8 @@ export default ({ socket }) => {
                         Turn
             </h4>
                 )}
+
+                <UsersOnlineList />
             </AppContext.Provider>
         </Fragment >
     );

@@ -14,5 +14,6 @@ export const initialStateGame = {
 
 export const initialStateMultiplayer = {
     playersAvailable: [],
-    opponentId: null
+    opponentId: null,
+    currentPlayerId: null
 }

@@ -10,10 +10,26 @@ app.use(express.static(path.join(__dirname, '..', 'dist')));
 
 const usersOnline = [];
 
-io.on('connection', function (socket) {
+io.on('connection', socket => {
+
     usersOnline.push(socket);
+
     io.emit("newUserJoined", usersOnline.map(x => x.client.id));
+
+    socket.on('fetchListOfUsers', () => {
+        //emit this event again for user that just logged in
+        io.emit("newUserJoined", usersOnline.map(x => x.client.id));
+    })
+
+    socket.on('disconnect', () => {
+        usersOnline.splice(usersOnline.indexOf(socket), 1);
+        io.emit("userLeft", usersOnline.map(x => x.client.id));
+    })
+
+
 });
+
+
 
 
 app.get('/', function (req, res, next) {

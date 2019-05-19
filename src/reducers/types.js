@@ -14,6 +14,6 @@ export const CHANGE_DIFFICULTY = 'changeDifficulty';
 
 
 //MultiplayerReducer
-export const ADD_PLAYER_TO_TABLE = 'addPlayerToTable';
-export const REMOVE_PLAYER_FROM_TABLE = 'removePlayerFromTable';
+export const UPDATE_LIST_OF_ACTIVE_PLAYERS = 'updateListOfPlayers';
 export const ADD_OPPONENT = 'addOpponent';
+export const SET_CURRENT_PLAYER_ID = 'setCurrentPlayerId';
