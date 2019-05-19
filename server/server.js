@@ -8,11 +8,11 @@ const express = require('express'),
 app.use(express.static(path.join(__dirname, '..', 'dist')));
 
 
-const usersOnline = [];
 
 io.on('connection', socket => {
 
-    usersOnline.push(socket);
+    let usersOnline = Object.keys(io.of('/').connected);
+
 
     io.emit("newUserJoined", usersOnline.map(x => x.client.id));
 
@@ -22,7 +22,7 @@ io.on('connection', socket => {
     })
 
     socket.on('disconnect', () => {
-        usersOnline.splice(usersOnline.indexOf(socket), 1);
+        usersOnline.splice(usersOnline.indexOf(socket.id), 1);
         io.emit("userLeft", usersOnline.map(x => x.client.id));
     })
 
