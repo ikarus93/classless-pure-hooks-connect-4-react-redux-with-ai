@@ -19,3 +19,6 @@ export const UPDATE_LIST_OF_ACTIVE_PLAYERS = 'updateListOfPlayers';
 export const ADD_OPPONENT = 'addOpponent';
 export const ADD_SOCKET = 'addSocket';
 export const DISCONNECT_SOCKET = 'disconnectSocket';
+export const REQUEST_MATCH = 'requestMatch';
+export const ACCEPT_MATCH = 'acceptMatch';
+export const REJECT_MATCH = 'rejectMatch';

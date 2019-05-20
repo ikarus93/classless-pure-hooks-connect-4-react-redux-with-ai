@@ -11,6 +11,7 @@ import HoverTable from "./HoverTable";
 import Canvas from "./Canvas";
 import GameControls from "./GameControls";
 import UsersOnlineList from "./UsersOnlineList";
+import GameRequestModal from "./GameRequestModal";
 
 //Helper functions
 import { compare, copyArray, transpose, updateCanvas, check, genRandNum } from "../helpers/helpers";
@@ -20,7 +21,7 @@ import minimax from "../ai/minimax";
 //Reducers related
 import { UPDATE_CANVAS, CHANGE_TURN, TOGGLE_GAME_STATUS, START_GAME, RESET_GAME, END_GAME, UPDATE_ACTIVE_ROW, TOGGLE_COMPUTER_OPPONENT, TOGGLE_ANIMATION_CLASS, CHANGE_ANIMATION_DEPTH, TOGGLE_OFFLINE_MODE, ADD_SOCKET, DISCONNECT_SOCKET } from "../reducers/types";
 import GameReducer from "../reducers/gameReducer";
-import { UPDATE_LIST_OF_ACTIVE_PLAYERS, ADD_OPPONENT, SET_CURRENT_PLAYER_ID } from "../reducers/types";
+import { UPDATE_LIST_OF_ACTIVE_PLAYERS, ADD_OPPONENT, SET_CURRENT_PLAYER_ID, REQUEST_MATCH, REJECT_MATCH, ACCEPT_MATCH } from "../reducers/types";
 import MultiplayerReducer from "../reducers/multiplayerReducer";
 import { initialStateGame, initialStateMultiplayer } from "../reducers/initialState"
 
@@ -56,11 +57,28 @@ export default props => {
                 //event listeners
                 socket.on("newUserJoined", updated => dispatchMultiplayerReducer({ type: UPDATE_LIST_OF_ACTIVE_PLAYERS, payload: updated }));
                 socket.on("userLeft", updated => dispatchMultiplayerReducer({ type: UPDATE_LIST_OF_ACTIVE_PLAYERS, payload: updated }));
+                socket.on("gameRequested", () => {
+                    dispatchMultiplayerReducer({ type: REQUEST_MATCH });
+                })
+
+                socket.on("gameRequestAccepted", opponentId => {
+                    dispatchGameReducer({ type: TOGGLE_OFFLINE_MODE });
+                    dispatchMultiplayerReducer({ type: ACCEPT_MATCH, payload: opponentId })
+                });
+
+                socket.on("gameRequestDenied", opponentId => {
+                    alert(`${opponentId} doesn't want to play with you`);
+                    dispatchMultiplayerReducer({ type: REJECT_MATCH })
+                })
+                socket.on("opponentDisconnected", () => {
+                    clearGame();
+                    dispatchMultiplayerReducer({ type: TOGGLE_OFFLINE_MODE });
+                });
 
                 socket.emit("fetchListOfUsers", ""); //load user list from io
             }
         },
-        [socket] //run only if socket variable changes
+        [socket] //run only if socket variable changes/player connects to host
     );
 
 
@@ -155,6 +173,7 @@ export default props => {
 
     return (
         <Fragment>
+            <GameRequestModal isOpen={requestMode} msg={""} cb={closeModal} />
             <AppContext.Provider value={{ state: { ...gameState, ...multiplayerState }, dispatchGameReducer, dispatchMultiplayerReducer, changeOpponent, updateCb }}>
                 {offlineMode &&
                     <div className="opponent-changer">
