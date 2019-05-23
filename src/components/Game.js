@@ -33,7 +33,7 @@ export default props => {
     const [gameState, dispatchGameReducer] = useReducer(GameReducer, initialStateGame);
     const [multiplayerState, dispatchMultiplayerReducer] = useReducer(MultiplayerReducer, initialStateMultiplayer)
     const { activePlayer, computerOpponent, gameOn, gameOver, canvas, difficulty, offlineMode } = gameState;
-    const { socket } = multiplayerState;
+    const { socket, requestMode, playerRequesting } = multiplayerState;
 
 
 
@@ -57,8 +57,8 @@ export default props => {
                 //event listeners
                 socket.on("newUserJoined", updated => dispatchMultiplayerReducer({ type: UPDATE_LIST_OF_ACTIVE_PLAYERS, payload: updated }));
                 socket.on("userLeft", updated => dispatchMultiplayerReducer({ type: UPDATE_LIST_OF_ACTIVE_PLAYERS, payload: updated }));
-                socket.on("gameRequested", () => {
-                    dispatchMultiplayerReducer({ type: REQUEST_MATCH });
+                socket.on("gameRequested", id => {
+                    dispatchMultiplayerReducer({ type: REQUEST_MATCH, payload: id });
                 })
 
                 socket.on("gameRequestAccepted", opponentId => {
@@ -168,12 +168,16 @@ export default props => {
 
         dispatchGameReducer({ type: TOGGLE_OFFLINE_MODE }); //for updating ui
 
+    };
+
+    const decisionForMatchRequest = bool => {
+        bool ? dispatchMultiplayerReducer({ type: ACCEPT_MATCH }) : dispatchMultiplayerReducer({ type: REJECT_MATCH });
     }
 
 
     return (
         <Fragment>
-            <GameRequestModal isOpen={requestMode} msg={""} cb={closeModal} />
+            <GameRequestModal isOpen={requestMode} msg={`${playerRequesting} asks for a match...`} cb={decisionForMatchRequest} />
             <AppContext.Provider value={{ state: { ...gameState, ...multiplayerState }, dispatchGameReducer, dispatchMultiplayerReducer, changeOpponent, updateCb }}>
                 {offlineMode &&
                     <div className="opponent-changer">

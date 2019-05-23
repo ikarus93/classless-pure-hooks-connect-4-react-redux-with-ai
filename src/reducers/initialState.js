@@ -17,5 +17,6 @@ export const initialStateMultiplayer = {
     playersAvailable: [], //All players that are free to play
     opponentId: null, //Id of opponent
     socket: null, //own socket connection,
-    requestMode: false
+    requestMode: false,
+    playerRequesting: null
 }

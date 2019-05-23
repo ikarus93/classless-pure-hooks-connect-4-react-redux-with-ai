@@ -12,12 +12,12 @@ export default (state, action) => {
             return initialStateMultiplayer;
 
         case REQUEST_MATCH:
-            return { ...state, requestMode: true };
+            return { ...state, requestMode: true, playerRequesting: action.payload };
 
         case REJECT_MATCH:
-            return { ...state, requestMode: false };
+            return { ...state, requestMode: false, playerRequesting: null };
 
         case ACCEPT_MATCH:
-            return { ...state, requestMode: false, opponentId: action.payload };
+            return { ...state, requestMode: false, opponentId: state.playerRequesting };
     }
 }

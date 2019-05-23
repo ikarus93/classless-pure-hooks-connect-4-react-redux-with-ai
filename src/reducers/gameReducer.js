@@ -28,6 +28,8 @@ export default (state, action) => {
         case CHANGE_DIFFICULTY:
             return { ...state, difficulty: action.payload };
         case TOGGLE_OFFLINE_MODE:
-            return { ...state, offlineMode: !state.offlineMode }
+            return { ...state, offlineMode: !state.offlineMode };
+
+
     }
 }

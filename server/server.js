@@ -27,7 +27,7 @@ io.on('connection', socket => {
     socket.on('matchAccepted', id => {
         let opponent = io.sockets.connected[id];
         [socket.opponent, opponent.opponent] = [opponent, socket];
-        socket.emit('')
+        io.to(id).emit('matchAccepted', socket.client.id);
     })
 
     socket.on('disconnect', () => {
