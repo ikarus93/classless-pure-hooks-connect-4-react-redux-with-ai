@@ -10,7 +10,8 @@ export const initialStateGame = {
     animationClass: false,  //used to trigger animation
     animationDepth: 15,    //default animation depth to be modified based on how much the column is occupied already
     difficulty: 0,   //sets difficulty of computer opponent
-    offlineMode: true
+    offlineMode: true,
+    multiplayerMode: false
 }
 
 export const initialStateMultiplayer = {
@@ -18,5 +19,6 @@ export const initialStateMultiplayer = {
     opponentId: null, //Id of opponent
     socket: null, //own socket connection,
     requestMode: false,
-    playerRequesting: null
+    playerRequesting: null,
+    hasTurn: false
 }

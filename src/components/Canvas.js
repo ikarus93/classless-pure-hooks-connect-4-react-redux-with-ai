@@ -6,14 +6,15 @@ import { UPDATE_ACTIVE_ROW } from "../reducers/types"
 
 const Field = ({ j, val }) => {
     //Single field that in canvas
-    const { updateCb, dispatchGameReducer } = React.useContext(AppContext);
+    const { updateCb, dispatchGameReducer, hasTurn, multiplayerMode } = React.useContext(AppContext);
+    const canMove = hasTurn || !multiplayerMode ? true : false;
     return (
         <td
             className={`table__field ${"table__active" + val}`} //if occupied by any player adds valid css class
-            onClick={updateCb.bind(null, j)}
+            onClick={canMove ? updateCb.bind(null, j) : ""}
             //mouse events used to show hover table piece on top of canvas
-            onMouseEnter={() => { dispatchGameReducer({ type: UPDATE_ACTIVE_ROW, payload: j + 1 }) }}
-            onMouseLeave={() => { dispatchGameReducer({ type: UPDATE_ACTIVE_ROW, payload: null }) }}
+            onMouseEnter={() => { canMove ? dispatchGameReducer({ type: UPDATE_ACTIVE_ROW, payload: j + 1 }) : "" }}
+            onMouseLeave={() => { canMove ? dispatchGameReducer({ type: UPDATE_ACTIVE_ROW, payload: null }) : "" }}
         />
     );
 };

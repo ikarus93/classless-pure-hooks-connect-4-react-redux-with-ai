@@ -19,7 +19,7 @@ import minimax from "../ai/minimax";
 
 
 //Reducers related
-import { UPDATE_CANVAS, CHANGE_TURN, TOGGLE_GAME_STATUS, START_GAME, RESET_GAME, END_GAME, UPDATE_ACTIVE_ROW, TOGGLE_COMPUTER_OPPONENT, TOGGLE_ANIMATION_CLASS, CHANGE_ANIMATION_DEPTH, TOGGLE_OFFLINE_MODE, ADD_SOCKET, DISCONNECT_SOCKET } from "../reducers/types";
+import { UPDATE_CANVAS, CHANGE_TURN, TOGGLE_GAME_STATUS, START_GAME, RESET_GAME, END_GAME, UPDATE_ACTIVE_ROW, TOGGLE_COMPUTER_OPPONENT, TOGGLE_ANIMATION_CLASS, CHANGE_ANIMATION_DEPTH, TOGGLE_OFFLINE_MODE, ADD_SOCKET, DISCONNECT_SOCKET, ENABLE_MULTIPLAYER_MODE } from "../reducers/types";
 import GameReducer from "../reducers/gameReducer";
 import { UPDATE_LIST_OF_ACTIVE_PLAYERS, ADD_OPPONENT, SET_CURRENT_PLAYER_ID, REQUEST_MATCH, REJECT_MATCH, ACCEPT_MATCH } from "../reducers/types";
 import MultiplayerReducer from "../reducers/multiplayerReducer";
@@ -32,7 +32,7 @@ export default props => {
     //const initialCanvas = Array(6).fill(Array(7).fill(0)); //The initial(empty) canvas
     const [gameState, dispatchGameReducer] = useReducer(GameReducer, initialStateGame);
     const [multiplayerState, dispatchMultiplayerReducer] = useReducer(MultiplayerReducer, initialStateMultiplayer)
-    const { activePlayer, computerOpponent, gameOn, gameOver, canvas, difficulty, offlineMode } = gameState;
+    const { activePlayer, computerOpponent, gameOn, gameOver, canvas, difficulty, offlineMode, multiplayerMode } = gameState;
     const { socket, requestMode, playerRequesting } = multiplayerState;
 
 
@@ -57,25 +57,37 @@ export default props => {
                 //event listeners
                 socket.on("newUserJoined", updated => dispatchMultiplayerReducer({ type: UPDATE_LIST_OF_ACTIVE_PLAYERS, payload: updated }));
                 socket.on("userLeft", updated => dispatchMultiplayerReducer({ type: UPDATE_LIST_OF_ACTIVE_PLAYERS, payload: updated }));
+
+                //if user gets challenged to game
                 socket.on("gameRequested", id => {
                     dispatchMultiplayerReducer({ type: REQUEST_MATCH, payload: id });
-                })
+                });
 
-                socket.on("gameRequestAccepted", opponentId => {
-                    dispatchGameReducer({ type: TOGGLE_OFFLINE_MODE });
+                //If user challenged opponent and opponents accepts challenge
+                socket.on("matchAccepted", opponentId => {
+                    alert(`${opponentId} accepted your match request`);
+                    startMultiplayerGame();
                     dispatchMultiplayerReducer({ type: ACCEPT_MATCH, payload: opponentId })
                 });
 
-                socket.on("gameRequestDenied", opponentId => {
+                //if user challenged opponent and opponent rejects
+                socket.on("matchRejected", opponentId => {
                     alert(`${opponentId} doesn't want to play with you`);
                     dispatchMultiplayerReducer({ type: REJECT_MATCH })
                 })
+
+                //if opponent disconnects while game
                 socket.on("opponentDisconnected", () => {
+                    alert("Opponent disconnected from Game");
                     clearGame();
                     dispatchMultiplayerReducer({ type: TOGGLE_OFFLINE_MODE });
                 });
 
-                socket.emit("fetchListOfUsers", ""); //load user list from io
+                socket.on("opponentMoved", () => {
+                    dispatchMultiplayerReducer({ type: TOGGLE_ACTIVE_ROUND })
+                })
+
+                socket.emit("fetchListOfUsers", ""); //load inital user list from io
             }
         },
         [socket] //run only if socket variable changes/player connects to host
@@ -94,6 +106,14 @@ export default props => {
         //Toggles between ai/human oppoent
         dispatchGameReducer({ type: TOGGLE_COMPUTER_OPPONENT })
     };
+
+    const startMultiplayerGame = () => {
+        dispatchGameReducer({ type: ENABLE_MULTIPLAYER_MODE })
+        dispatchGameReducer({ type: TOGGLE_OFFLINE_MODE });
+        dispatchGameReducer({
+            type: START_GAME
+        })
+    }
 
 
 
@@ -121,7 +141,13 @@ export default props => {
                     //compare is coin could have been placed and array changed appearance, only then change turn
                     if (!compare(copyToCompare, newArr)) {
                         dispatchGameReducer({ type: CHANGE_TURN });
+                        if (!multiplayerMode) {
+                            //This variable is used to prevent player from moving when his turn isnt
+                            dispatchMultiplayerReducer({ type: TOGGLE_ACTIVE_ROUND });
+                            socket.emit("turnEnd", "");
+                        }
                     }
+
                 }
             }
         }, 1000)
@@ -170,17 +196,25 @@ export default props => {
 
     };
 
+
     const decisionForMatchRequest = bool => {
-        bool ? dispatchMultiplayerReducer({ type: ACCEPT_MATCH }) : dispatchMultiplayerReducer({ type: REJECT_MATCH });
+        if (bool) {
+            socket.emit("matchAccepted", playerRequesting);
+            dispatchMultiplayerReducer({ type: ACCEPT_MATCH });
+            startMultiplayerGame();
+        } else {
+            socket.emit("matchRejected", playerRequesting);
+            dispatchMultiplayerReducer({ type: REJECT_MATCH });
+        }
     }
 
 
     return (
         <Fragment>
             <GameRequestModal isOpen={requestMode} msg={`${playerRequesting} asks for a match...`} cb={decisionForMatchRequest} />
-            <AppContext.Provider value={{ state: { ...gameState, ...multiplayerState }, dispatchGameReducer, dispatchMultiplayerReducer, changeOpponent, updateCb }}>
-                {offlineMode &&
-                    <div className="opponent-changer">
+            <AppContext.Provider value={{ state: { ...gameState, ...multiplayerState }, dispatchGameReducer, dispatchMultiplayerReducer, changeOpponent, updateCb, startMultiplayerGame }}>
+                {(offlineMode && !multiplayerMode) &&
+                    < div className="opponent-changer">
                         <h4>Play against {computerOpponent ? "Computer" : "Human"} </h4>
                         <ToggleSwitch />
                     </div>}

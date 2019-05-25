@@ -1,4 +1,4 @@
-import { UPDATE_LIST_OF_ACTIVE_PLAYERS, ADD_OPPONENT, ADD_SOCKET, DISCONNECT_SOCKET, REQUEST_MATCH, ACCEPT_MATCH, REJECT_MATCH } from "./types";
+import { UPDATE_LIST_OF_ACTIVE_PLAYERS, ADD_OPPONENT, ADD_SOCKET, DISCONNECT_SOCKET, REQUEST_MATCH, ACCEPT_MATCH, REJECT_MATCH, TOGGLE_ACTIVE_ROUND } from "./types";
 import { initialStateMultiplayer } from './initialState';
 export default (state, action) => {
     switch (action.type) {
@@ -19,5 +19,8 @@ export default (state, action) => {
 
         case ACCEPT_MATCH:
             return { ...state, requestMode: false, opponentId: state.playerRequesting };
+
+        case TOGGLE_ACTIVE_ROUND:
+            return { ...state, hasTurn: !state.hasTurn }
     }
 }

@@ -30,6 +30,16 @@ io.on('connection', socket => {
         io.to(id).emit('matchAccepted', socket.client.id);
     })
 
+    socket.on('matchRejected', id => {
+        let opponent = io.sockets.connected[id];
+        [socket.opponent, opponent.opponent] = [opponent, socket];
+        io.to(id).emit('matchRejected', socket.client.id);
+    })
+
+    socket.on('turnEnd', () => {
+        console.log(socket.opponent)
+    })
+
     socket.on('disconnect', () => {
         usersOnline.splice(usersOnline.indexOf(socket.id), 1);
         io.emit("userLeft", usersOnline);

@@ -7,7 +7,7 @@ const ListEntry = ({ player, cb }) => {
 
 export default props => {
 
-    const { state: { playersAvailable, socket, requestMode }, dispatchMultiplayerReducer } = useContext(AppContext);
+    const { state: { playersAvailable, socket, requestMode } } = useContext(AppContext);
 
     const requestMatch = opponentId => {
         if (!requestMode) {

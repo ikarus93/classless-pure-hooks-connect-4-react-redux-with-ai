@@ -12,6 +12,7 @@ export const TOGGLE_ANIMATION_CLASS = 'toggleAnimationClass';
 export const CHANGE_ANIMATION_DEPTH = 'changeAnimationDepth';
 export const CHANGE_DIFFICULTY = 'changeDifficulty';
 export const TOGGLE_OFFLINE_MODE = 'toggleOfflineMode';
+export const ENABLE_MULTIPLAYER_MODE = "enableMultiplayerMode";
 
 
 //MultiplayerReducer
@@ -22,3 +23,4 @@ export const DISCONNECT_SOCKET = 'disconnectSocket';
 export const REQUEST_MATCH = 'requestMatch';
 export const ACCEPT_MATCH = 'acceptMatch';
 export const REJECT_MATCH = 'rejectMatch';
+export const TOGGLE_ACTIVE_ROUND = 'toggleActiveRound';
